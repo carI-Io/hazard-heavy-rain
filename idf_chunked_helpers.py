@@ -102,7 +102,11 @@ def rolling_accumulation_annual_max_chunked(year, data_root, tp_var,
             arr = deaccumulate(arr)
 
         # ── prepend carry buffer from previous month ──────────────────────────
-        if carry is not None and duration_h > 1:
+        # Record whether a prepend actually happened BEFORE updating carry,
+        # because carry is overwritten below and the offset check would
+        # otherwise always see a non-None carry on the first month.
+        prepended = (carry is not None and duration_h > 1)
+        if prepended:
             arr = np.concatenate([carry, arr], axis=0)
 
         # update carry for next iteration
@@ -120,9 +124,10 @@ def rolling_accumulation_annual_max_chunked(year, data_root, tp_var,
         rolled[duration_h:] = cs[duration_h:] - cs[:-duration_h]
         rolled[:duration_h] = np.nan   # incomplete window
 
-        # month-local max (ignoring the carry prefix rows for the max update
-        # so we don't double-count them — they were already counted last month)
-        offset = (duration_h - 1) if (carry is not None or duration_h > 1) else 0
+        # month-local max — skip the prepended carry prefix rows so they are
+        # not double-counted (they were already included in the previous month).
+        # On the first month nothing was prepended so offset must be 0.
+        offset = (duration_h - 1) if prepended else 0
         month_max = np.nanmax(rolled[offset:], axis=0)
 
         np.maximum(ann_max, month_max, out=ann_max)
