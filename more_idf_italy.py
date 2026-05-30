@@ -445,7 +445,7 @@ def plot_idf_maps():
     Output: <OUTPUT_DIR>/IDF_maps_<dur>h.png
     """
     log.info('── Section 6: Plotting IDF maps ───────────────────────────────')
-    precip_cmap, precip_norm, _ = _make_precip_cmap()
+    precip_cmap, precip_norm = _make_precip_cmap()
 
     for dur in DURATIONS:
         idf_path = os.path.join(OUTPUT_DIR, f'idf_{dur}h.nc')
