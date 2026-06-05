@@ -22,7 +22,7 @@ python more_chicago_hyetograph.py \
 
 git add .
 git commit -a -m "autocommit: update IDF" || true
-git pull --rebase
+git pull
 git push
 
 gsutil -m cp -r /home/admin_climatecharted_com/data/MOloch/IDF_results \
